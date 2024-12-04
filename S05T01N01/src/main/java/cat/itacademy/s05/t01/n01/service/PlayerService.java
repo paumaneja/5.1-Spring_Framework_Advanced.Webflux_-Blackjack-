@@ -1,7 +1,8 @@
 package cat.itacademy.s05.t01.n01.service;
 
 import cat.itacademy.s05.t01.n01.model.Player;
+import reactor.core.publisher.Mono;
 
 public interface PlayerService {
-    Player createPlayer(String playerName);
+    Mono<Player> createPlayer(String playerName);
 }

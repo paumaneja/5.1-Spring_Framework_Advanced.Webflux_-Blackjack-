@@ -19,8 +19,9 @@ public class PlayerController {
     private final PlayerService playerService;
 
     @PostMapping("/new")
-    public Mono<ResponseEntity<Player>> createPlayer(@RequestBody Player player){
-        return ResponseEntity.status(HttpStatus.CREATED).body(playerService.createPlayer(player));
+    public Mono<ResponseEntity<Player>> createPlayer(@RequestBody String playerName){
+        return playerService.createPlayer(playerName)
+                .map(savedPlayer -> ResponseEntity.status(HttpStatus.CREATED).body(savedPlayer));
     }
 
 
