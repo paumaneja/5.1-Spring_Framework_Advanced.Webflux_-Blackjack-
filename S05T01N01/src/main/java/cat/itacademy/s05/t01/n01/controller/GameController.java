@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/game")
 public class GameController {
@@ -21,8 +23,8 @@ public class GameController {
     }
 
     @PostMapping("/new")
-    public Mono<ResponseEntity<Game>> createGame(@RequestBody String playerName){
-        return gameService.createGame(playerName)
+    public Mono<ResponseEntity<Game>> createGame(@RequestBody List<String> playerNames){
+        return gameService.createGame(playerNames)
                 .map(game -> ResponseEntity.status(HttpStatus.CREATED).body(game));
     }
 

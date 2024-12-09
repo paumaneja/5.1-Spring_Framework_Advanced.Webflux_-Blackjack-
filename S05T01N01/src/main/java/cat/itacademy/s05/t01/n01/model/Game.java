@@ -25,7 +25,7 @@ public class Game {
 
     public Game() {
         this.deck = new Deck();
-        this.status = GameStatus.IN_POGRESS;
+        this.status = GameStatus.IN_PROGRESS;
     }
 
 }
