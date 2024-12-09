@@ -10,5 +10,14 @@ public class Player {
     @Id
     private Long id;
     private String name;
-    private Integer total_score;
+    private Integer totalScore;
+    private int ranking;
+
+    public Player() {}
+
+    public Player(String name) {
+        this.name = name;
+        this.totalScore = 0;
+        this.ranking = 0;
+    }
 }

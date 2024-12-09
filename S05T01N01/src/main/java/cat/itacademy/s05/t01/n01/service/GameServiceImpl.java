@@ -1,5 +1,6 @@
 package cat.itacademy.s05.t01.n01.service;
 
+import cat.itacademy.s05.t01.n01.enums.Rank;
 import cat.itacademy.s05.t01.n01.model.Card;
 import cat.itacademy.s05.t01.n01.model.Deck;
 import cat.itacademy.s05.t01.n01.model.Game;
@@ -35,9 +36,20 @@ public class GameServiceImpl implements GameService{
 
     @Override
     public int calculateHandValue(List<Card> hand) {
-        return hand.stream()
+        int totalValue = hand.stream()
                 .mapToInt(cardService::calculateValue)
                 .sum();
+
+        long aceCount = hand.stream()
+                .filter(card -> card.getRank() == Rank.ACE)
+                .count();
+
+        while (totalValue > 21 && aceCount > 0) {
+            totalValue -= 10;
+            aceCount--;
+        }
+
+        return totalValue;
     }
 
     @Override
@@ -55,21 +67,72 @@ public class GameServiceImpl implements GameService{
     @Override
     public void determineWinner(Game game) {
         int dealerValue = calculateHandValue(game.getDealerHand());
+        boolean dealerHasBlackJack = dealerValue == 21 && game.getDealerHand().size() == 2;
 
         game.getPlayerHands().forEach((playerName, playerHand) -> {
             int playerValue = calculateHandValue(playerHand);
+            boolean playerHasBlackJack = playerValue == 21 && playerHand.size() == 2;
 
-            if (playerValue > 21) {
-                System.out.println(playerName + " loses (has surpassed 21).");
-            } else if (dealerValue > 21 || playerValue > dealerValue) {
-                System.out.println(playerName + " win against the dealer.");
-            } else if (playerValue < dealerValue) {
-                System.out.println(playerName + " loses to the dealer.");
+            if (playerHasBlackJack && dealerHasBlackJack) {
+                System.out.println(playerName + " ties with the dealer with a natural Blackjack!");
+            } else if (playerHasBlackJack) {
+                System.out.println(playerName + " wins with a natural Blackjack!");
+            } else if (dealerHasBlackJack) {
+                System.out.println(playerName + " loses. The dealer has a natural Blackjack.");
             } else {
-                System.out.println(playerName + " tie with the dealer.");
+                boolean playerBust = playerValue > 21;
+                boolean dealerBust = dealerValue > 21;
+                boolean playerWins = !playerBust && (dealerBust || playerValue > dealerValue);
+                boolean dealerWins = !dealerBust && (playerBust || dealerValue > playerValue);
+
+                if (playerWins) {
+                    System.out.println(playerName + " wins with " + playerValue + " points.");
+                } else if (dealerWins) {
+                    System.out.println(playerName + " loses. The dealer has " + dealerValue + " points.");
+                } else {
+                    System.out.println(playerName + " ties with the dealer with " + playerValue + " points.");
+                }
             }
         });
     }
+
+    @Override
+    public void processBets(Game game) {
+        int dealerValue = calculateHandValue(game.getDealerHand());
+
+        game.getPlayerHands().forEach((playerName, playerHand) -> {
+            int playerValue = calculateHandValue(playerHand);
+            int bet = game.getPlayerBets().getOrDefault(playerName, 0);
+
+            if (playerValue > 21 || (dealerValue <= 21 && dealerValue > playerValue)) {
+                System.out.println(playerName + " loses the bet of " + bet + ".");
+            } else if (dealerValue > 21 || playerValue > dealerValue) {
+                System.out.println(playerName + " wins " + (2 * bet) + ".");
+            } else {
+                System.out.println(playerName + " tie and get your bet back " + bet + ".");
+            }
+        });
+    }
+
+    @Override
+    public Mono<Game> playMove(String gameId, String playerName, String move) {
+        return getGame(gameId)
+                .flatMap(game -> {
+                    if ("hit".equalsIgnoreCase(move)) {
+                        dealCardToPlayer(game, playerName);
+                        int playerValue = calculateHandValue(game.getPlayerHands().get(playerName));
+                        if (playerValue > 21) {
+                            System.out.println(playerName + ". Bust!");
+                        }
+                    } else if ("stand".equalsIgnoreCase(move)) {
+                        System.out.println(playerName + " STANDS.");
+                    } else {
+                        return Mono.error(new IllegalArgumentException("Not valid: " + move));
+                    }
+                    return updateGame(gameId, game);
+                });
+    }
+
 
     @Override
     public Mono<Game> getGame(String id){
