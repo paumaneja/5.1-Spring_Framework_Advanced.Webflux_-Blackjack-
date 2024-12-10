@@ -12,4 +12,6 @@ public interface PlayerService {
     Mono<List<Player>> updateRanking();
     Mono<List<Player>> saveAllPlayers(List<Player> players);
     Mono<Void> updatePlayerScore(String playerId, int additionalScore);
+    Mono<Player> updatePlayerName(String playerId, String newName);
+
 }

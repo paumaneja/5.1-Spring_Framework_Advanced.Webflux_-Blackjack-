@@ -5,11 +5,11 @@ import cat.itacademy.s05.t01.n01.service.PlayerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/player")
@@ -23,6 +23,25 @@ public class PlayerController {
         return playerService.createPlayer(playerName)
                 .map(savedPlayer -> ResponseEntity.status(HttpStatus.CREATED).body(savedPlayer));
     }
+
+    @GetMapping("/ranking")
+    public Mono<ResponseEntity<List<Player>>> getPlayerRanking() {
+        return playerService.updateRanking()
+                .map(ResponseEntity::ok)
+                .defaultIfEmpty(ResponseEntity.noContent().build());
+    }
+
+    @PutMapping("/{playerId}")
+    public Mono<ResponseEntity<Player>> updatePlayerName(
+            @PathVariable String playerId,
+            @RequestBody Map<String, String> request
+    ) {
+        String newName = request.get("name");
+        return playerService.updatePlayerName(playerId, newName)
+                .map(ResponseEntity::ok)
+                .defaultIfEmpty(ResponseEntity.notFound().build());
+    }
+
 
 
 }

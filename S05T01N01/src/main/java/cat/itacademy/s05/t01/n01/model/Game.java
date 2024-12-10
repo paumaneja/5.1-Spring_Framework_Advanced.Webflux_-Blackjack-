@@ -15,12 +15,10 @@ public class Game {
     @Id
     private String id;
     private Deck deck;
-
-    private Map<String, List<Card>> playerHands = new HashMap<>();
+    private Map<String, List<Card>> playerHands;
+    private Map<String, Integer> playerBets;
+    private Map<String, String> playerResults;
     private List<Card> dealerHand;
-
-    private Map<String, Integer> playerBets = new HashMap<>();
-
     private GameStatus status;
 
     public Game() {

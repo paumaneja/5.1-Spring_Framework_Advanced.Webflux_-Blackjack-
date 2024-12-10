@@ -59,5 +59,15 @@ public class PlayerServiceImpl implements PlayerService{
                 .then();
     }
 
+    @Override
+    public Mono<Player> updatePlayerName(String playerId, String newName) {
+        return playerRepository.findById(Long.valueOf(playerId))
+                .flatMap(player -> {
+                    player.setName(newName);
+                    return playerRepository.save(player);
+                });
+    }
+
+
 
 }

@@ -18,5 +18,7 @@ public interface GameService {
     Mono<Game> playMove(String gameId, String playerName, String move);
     Mono<Game> getGame(String id);
     Mono<Game> updateGame(String id, Game game);
-    Mono<Game> deleteGame(String id);
+    Mono<Void> deleteGame(String id);
+    void dealerTurn(Game game);
+    void completeGame(Game game);
 }
