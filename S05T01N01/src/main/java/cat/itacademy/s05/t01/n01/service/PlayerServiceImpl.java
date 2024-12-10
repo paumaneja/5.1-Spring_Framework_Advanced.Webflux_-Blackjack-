@@ -23,25 +23,27 @@ public class PlayerServiceImpl implements PlayerService{
     public Mono<Player> createPlayer(String playerName){
         Player newPlayer = new Player();
         newPlayer.setName(playerName);
-        newPlayer.setTotal_score(0);
+        newPlayer.setTotalScore(0);
+        newPlayer.setRanking(0);
         return playerRepository.save(newPlayer);
     }
 
     @Override
     public Mono<List<Player>> updateRanking() {
-        return getAllPlayers()
-                .map(players -> players.stream()
-                        .sorted(Comparator.comparingInt(Player::getTotalScore).reversed())
-                        .peek(player -> {
-                            int rank = players.indexOf(player) + 1;
-                            player.setRanking(rank);
-                        })
-                        .toList())
-                .flatMap(players -> saveAllPlayers(players));
+        return playerRepository.findAll()
+                .collectList()
+                .map(players -> {
+                    List<Player> sortedPlayers = players.stream()
+                            .sorted(Comparator.comparingInt(Player::getTotalScore).reversed())
+                            .peek(player -> player.setRanking(players.indexOf(player) + 1))
+                            .toList();
+                    return sortedPlayers;
+                })
+                .flatMap(this::saveAllPlayers);
     }
 
     @Override
-    private Mono<List<Player>> saveAllPlayers(List<Player> players) {
+    public Mono<List<Player>> saveAllPlayers(List<Player> players) {
         return Flux.fromIterable(players)
                 .flatMap(playerRepository::save)
                 .collectList();
@@ -49,7 +51,7 @@ public class PlayerServiceImpl implements PlayerService{
 
     @Override
     public Mono<Void> updatePlayerScore(String playerId, int additionalScore) {
-        return getPlayerById(playerId)
+        return playerRepository.findById(Long.valueOf(playerId))
                 .flatMap(player -> {
                     player.setTotalScore(player.getTotalScore() + additionalScore);
                     return playerRepository.save(player);

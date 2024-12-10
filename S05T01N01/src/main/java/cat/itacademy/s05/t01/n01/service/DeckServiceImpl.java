@@ -42,7 +42,7 @@ public class DeckServiceImpl implements DeckService{
     @Override
     public Card dealCard(Deck deck) {
         if (deck.getCards().isEmpty()) {
-            throw new DeckEmptyException("The deck is empty.");
+            //throw new DeckEmptyException("The deck is empty.");
         }
         Card card = deck.getCards().remove(0);
         cardService.flipCard(card);

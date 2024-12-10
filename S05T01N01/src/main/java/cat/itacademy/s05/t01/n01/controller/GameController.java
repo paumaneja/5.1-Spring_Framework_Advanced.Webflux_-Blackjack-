@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/game")
@@ -35,6 +36,26 @@ public class GameController {
                 .map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
+
+    @PostMapping("/{id}/play")
+    public Mono<ResponseEntity<Game>> playGame(
+            @PathVariable String id,
+            @RequestBody Map<String, String> action) {
+        return gameService.getGame(id)
+                .flatMap(game -> {
+                    String playerName = action.get("playerName");
+                    String move = action.get("move");
+                    if ("hit".equalsIgnoreCase(move)) {
+                        gameService.dealCardToPlayer(game, playerName);
+                    } else if ("stand".equalsIgnoreCase(move)) {
+                        System.out.println(playerName + " ha decidit plantar-se.");
+                    }
+                    return gameService.updateGame(id, game);
+                })
+                .map(ResponseEntity::ok)
+                .defaultIfEmpty(ResponseEntity.notFound().build());
+    }
+
 
 
 }
