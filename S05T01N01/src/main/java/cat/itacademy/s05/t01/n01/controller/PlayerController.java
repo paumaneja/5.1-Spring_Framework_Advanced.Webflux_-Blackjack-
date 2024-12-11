@@ -31,13 +31,13 @@ public class PlayerController {
                 .defaultIfEmpty(ResponseEntity.noContent().build());
     }
 
-    @PutMapping("/{playerId}")
+    @PutMapping("/{playerName}")
     public Mono<ResponseEntity<Player>> updatePlayerName(
-            @PathVariable String playerId,
+            @PathVariable String playerName,
             @RequestBody Map<String, String> request
     ) {
         String newName = request.get("name");
-        return playerService.updatePlayerName(playerId, newName)
+        return playerService.updatePlayerName(playerName, newName)
                 .map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }

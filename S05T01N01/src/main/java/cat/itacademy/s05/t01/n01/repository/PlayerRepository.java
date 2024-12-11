@@ -10,5 +10,6 @@ import java.util.List;
 
 @Repository
 public interface PlayerRepository extends R2dbcRepository<Player, Long> {
-    Flux<Player> findAll();
+    //Flux<Player> findAll();
+    Mono<Player> findByName(String name);
 }

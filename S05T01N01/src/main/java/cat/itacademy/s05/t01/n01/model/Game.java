@@ -5,9 +5,7 @@ import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Data
 @Document
@@ -15,10 +13,11 @@ public class Game {
     @Id
     private String id;
     private Deck deck;
-    private Map<String, List<Card>> playerHands;
-    private Map<String, Integer> playerBets;
-    private Map<String, String> playerResults;
-    private List<Card> dealerHand;
+    private Map<String, List<Card>> playerHands = new LinkedHashMap<>();
+    private Map<String, Integer> playerBets = new HashMap<>();
+    private Map<String, String> playerResults = new HashMap<>();
+    private List<Card> dealerHand = new ArrayList<>();
+    private String activePlayer;
     private GameStatus status;
 
     public Game() {

@@ -50,18 +50,19 @@ public class PlayerServiceImpl implements PlayerService{
     }
 
     @Override
-    public Mono<Void> updatePlayerScore(String playerId, int additionalScore) {
-        return playerRepository.findById(Long.valueOf(playerId))
+    public Mono<Void> updatePlayerScore(String playerName, int score) {
+        return playerRepository.findByName(playerName) // Find by name instead of ID
                 .flatMap(player -> {
-                    player.setTotalScore(player.getTotalScore() + additionalScore);
+                    player.setTotalScore(player.getTotalScore() + score);
                     return playerRepository.save(player);
                 })
-                .then();
+                .switchIfEmpty(Mono.error(new IllegalArgumentException("Player not found: " + playerName))).then();
     }
 
+
     @Override
-    public Mono<Player> updatePlayerName(String playerId, String newName) {
-        return playerRepository.findById(Long.valueOf(playerId))
+    public Mono<Player> updatePlayerName(String playerName, String newName) {
+        return playerRepository.findByName(playerName)
                 .flatMap(player -> {
                     player.setName(newName);
                     return playerRepository.save(player);

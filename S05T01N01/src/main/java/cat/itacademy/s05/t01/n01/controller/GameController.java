@@ -41,20 +41,13 @@ public class GameController {
     public Mono<ResponseEntity<Game>> playGame(
             @PathVariable String id,
             @RequestBody Map<String, String> action) {
-        return gameService.getGame(id)
-                .flatMap(game -> {
-                    String playerName = action.get("playerName");
-                    String move = action.get("move");
-                    if ("hit".equalsIgnoreCase(move)) {
-                        gameService.dealCardToPlayer(game, playerName);
-                    } else if ("stand".equalsIgnoreCase(move)) {
-                        System.out.println(playerName + " ha decidit plantar-se.");
-                    }
-                    return gameService.updateGame(id, game);
-                })
+        String playerName = action.get("playerName");
+        String move = action.get("move");
+        return gameService.playMove(id, playerName, move)
                 .map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
+
 
 
     @DeleteMapping("/{id}/delete")

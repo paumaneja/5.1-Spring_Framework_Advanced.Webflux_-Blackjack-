@@ -28,14 +28,40 @@ public class GameServiceImpl implements GameService{
     public Mono<Game> createGame(List<String> playerNames){
         Game newGame = new Game();
         Deck deck = deckService.createDeck();
+        deckService.shuffleDeck(deck);
         newGame.setDeck(deck);
+        if (!playerNames.isEmpty()) {
+            newGame.setActivePlayer(playerNames.get(0)); // Set the first player as active
+        }
         playerNames.forEach(player -> {
             newGame.getPlayerHands().put(player, new ArrayList<>());
             newGame.getPlayerBets().put(player, 0);
+            newGame.getPlayerHands().get(player).add(deckService.dealCard(deck));
+            newGame.getPlayerHands().get(player).add(deckService.dealCard(deck));
         });
         newGame.setPlayerResults(new HashMap<>());
         newGame.setDealerHand(new ArrayList<>());
+        newGame.getDealerHand().add(deckService.dealCard(deck));
         return gameRepository.save(newGame);
+    }
+
+    @Override
+    public void dealCardToPlayer(Game game, String playerName) {
+        Card card = deckService.dealCard(game.getDeck());
+        game.getPlayerHands().get(playerName).add(card);
+    }
+
+    @Override
+    public void dealCardToDealer(Game game) {
+        Card card = deckService.dealCard(game.getDeck());
+        game.getDealerHand().add(card);
+    }
+
+    @Override
+    public void dealerTurn(Game game) {
+        while (calculateHandValue(game.getDealerHand()) < 17) {
+            dealCardToDealer(game);
+        }
     }
 
     @Override
@@ -57,23 +83,66 @@ public class GameServiceImpl implements GameService{
     }
 
     @Override
-    public void dealCardToPlayer(Game game, String playerName) {
-        Card card = deckService.dealCard(game.getDeck());
-        game.getPlayerHands().get(playerName).add(card);
+    public Mono<Game> playMove(String gameId, String playerName, String move) {
+        return getGame(gameId)
+                .flatMap(game -> {
+                    if (!playerName.equals(game.getActivePlayer())) {
+                        return Mono.error(new IllegalArgumentException("It's not " + playerName + "'s turn."));
+                    }
+
+                    switch (move.toUpperCase()) {
+                        case "HIT":
+                            dealCardToPlayer(game, playerName);
+                            if (calculateHandValue(game.getPlayerHands().get(playerName)) > 21) {
+                                game.getPlayerResults().put(playerName, "BUST");
+                                progressTurn(game);
+                            }
+                            break;
+
+                        case "STAND":
+                            progressTurn(game);
+                            break;
+
+                        default:
+                            return Mono.error(new IllegalArgumentException("Invalid move: " + move));
+                    }
+
+                    // Check if all players have finished and start dealer's turn
+                    if (game.getActivePlayer() == null) {
+                        dealerTurn(game);
+                        completeGame(game);
+                    }
+
+                    return updateGame(gameId, game);
+                });
     }
 
-    @Override
-    public void dealCardToDealer(Game game) {
-        Card card = deckService.dealCard(game.getDeck());
-        game.getDealerHand().add(card);
-    }
 
-    @Override
-    public void dealerTurn(Game game) {
-        while (calculateHandValue(game.getDealerHand()) < 17) {
-            dealCardToDealer(game);
+
+    private void progressTurn(Game game) {
+        // Ensure playerHands has a valid order of players
+        List<String> players = new ArrayList<>(game.getPlayerHands().keySet());
+        String currentPlayer = game.getActivePlayer();
+
+        // Validate that the active player exists
+        if (currentPlayer == null || !players.contains(currentPlayer)) {
+            throw new IllegalStateException("Active player is invalid or missing.");
+        }
+
+        // Find the current player's index
+        int currentIndex = players.indexOf(currentPlayer);
+
+        // Transition to the next player, or to dealer if no players remain
+        if (currentIndex < players.size() - 1) {
+            game.setActivePlayer(players.get(currentIndex + 1)); // Move to the next player
+        } else {
+            game.setActivePlayer(null); // No more players, dealer's turn
         }
     }
+
+
+
+
 
     @Override
     public void determineWinner(Game game) {
@@ -118,38 +187,7 @@ public class GameServiceImpl implements GameService{
         });
     }
 
-    @Override
-    public Mono<Game> playMove(String gameId, String playerName, String move) {
-        return getGame(gameId)
-                .flatMap(game -> {
-                    switch (move.toUpperCase()) {
-                        case "HIT":
-                            dealCardToPlayer(game, playerName);
-                            if (calculateHandValue(game.getPlayerHands().get(playerName)) > 21) {
-                                game.getPlayerResults().put(playerName, "BUST");
-                                completeGame(game);
-                            }
-                            break;
-                        case "STAND":
-                            dealerTurn(game);
-                            completeGame(game);
-                            break;
-                        case "DOUBLEDOWN":
-                            int currentBet = game.getPlayerBets().get(playerName);
-                            game.getPlayerBets().put(playerName, currentBet * 2);
-                            dealCardToPlayer(game, playerName);
-                            if (calculateHandValue(game.getPlayerHands().get(playerName)) > 21) {
-                                game.getPlayerResults().put(playerName, "BUST");
-                            }
-                            dealerTurn(game);
-                            completeGame(game);
-                            break;
-                        default:
-                            return Mono.error(new IllegalArgumentException("Invalid move: " + move));
-                    }
-                    return updateGame(gameId, game);
-                });
-    }
+
 
     @Override
     public void completeGame(Game game) {
