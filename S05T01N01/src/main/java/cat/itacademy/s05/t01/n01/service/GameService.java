@@ -15,7 +15,7 @@ public interface GameService {
     void dealCardToDealer(Game game);
     void determineWinner(Game game);
     void processBets(Game game);
-    Mono<Game> playMove(String gameId, String playerName, String move);
+    Mono<Game> playMove(String gameId, String playerName, String move, int bet);
     Mono<Game> getGame(String id);
     Mono<Game> updateGame(String id, Game game);
     Mono<Void> deleteGame(String id);

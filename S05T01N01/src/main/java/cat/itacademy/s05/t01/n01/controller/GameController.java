@@ -1,6 +1,7 @@
 package cat.itacademy.s05.t01.n01.controller;
 
 
+import cat.itacademy.s05.t01.n01.dto.PlayGameRequest;
 import cat.itacademy.s05.t01.n01.model.Game;
 import cat.itacademy.s05.t01.n01.service.GameService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,10 +41,12 @@ public class GameController {
     @PostMapping("/{id}/play")
     public Mono<ResponseEntity<Game>> playGame(
             @PathVariable String id,
-            @RequestBody Map<String, String> action) {
-        String playerName = action.get("playerName");
-        String move = action.get("move");
-        return gameService.playMove(id, playerName, move)
+            @RequestBody PlayGameRequest playGameRequest) {
+        String playerName = playGameRequest.getPlayerName();
+        String move = playGameRequest.getMove();
+        int bet = playGameRequest.getBet();
+
+        return gameService.playMove(id, playerName, move, bet)
                 .map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
