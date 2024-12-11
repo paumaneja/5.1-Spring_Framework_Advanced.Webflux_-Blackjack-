@@ -35,7 +35,7 @@ public class GameServiceImpl implements GameService{
         }
         playerNames.forEach(player -> {
             newGame.getPlayerHands().put(player, new ArrayList<>());
-            newGame.getPlayerBets().put(player, 0);
+            newGame.getPlayerBets().put(player, 100);
             newGame.getPlayerHands().get(player).add(deckService.dealCard(deck));
             newGame.getPlayerHands().get(player).add(deckService.dealCard(deck));
         });
@@ -83,7 +83,7 @@ public class GameServiceImpl implements GameService{
     }
 
     @Override
-    public Mono<Game> playMove(String gameId, String playerName, String move) {
+    public Mono<Game> playMove(String gameId, String playerName, String move, int bet) {
         return getGame(gameId)
                 .flatMap(game -> {
                     if (!playerName.equals(game.getActivePlayer())) {
