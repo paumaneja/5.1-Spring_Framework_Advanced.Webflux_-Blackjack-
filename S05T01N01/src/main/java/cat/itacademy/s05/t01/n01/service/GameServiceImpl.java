@@ -5,15 +5,19 @@ import cat.itacademy.s05.t01.n01.enums.Rank;
 import cat.itacademy.s05.t01.n01.model.Card;
 import cat.itacademy.s05.t01.n01.model.Deck;
 import cat.itacademy.s05.t01.n01.model.Game;
+import cat.itacademy.s05.t01.n01.model.Player;
 import cat.itacademy.s05.t01.n01.repository.GameRepository;
+import cat.itacademy.s05.t01.n01.repository.PlayerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -23,27 +27,44 @@ public class GameServiceImpl implements GameService{
     private final DeckService deckService;
     private final CardService cardService;
     private final PlayerService playerService;
+    private final PlayerRepository playerRepository;
 
     @Override
     public Mono<Game> createGame(List<String> playerNames){
-        Game newGame = new Game();
-        Deck deck = deckService.createDeck();
-        deckService.shuffleDeck(deck);
-        newGame.setDeck(deck);
-        if (!playerNames.isEmpty()) {
-            newGame.setActivePlayer(playerNames.get(0)); // Set the first player as active
-        }
-        playerNames.forEach(player -> {
-            newGame.getPlayerHands().put(player, new ArrayList<>());
-            newGame.getPlayerBets().put(player, 100);
-            newGame.getPlayerHands().get(player).add(deckService.dealCard(deck));
-            newGame.getPlayerHands().get(player).add(deckService.dealCard(deck));
-        });
-        newGame.setPlayerResults(new HashMap<>());
-        newGame.setDealerHand(new ArrayList<>());
-        newGame.getDealerHand().add(deckService.dealCard(deck));
-        return gameRepository.save(newGame);
+        return verifyPlayersExist(playerNames)
+                .flatMap(allPlayersExist -> {
+                    if (!allPlayersExist) {
+                        return Mono.error(new IllegalArgumentException("One or more players do not exist in the database."));
+                    }
+                    Game newGame = new Game();
+                    Deck deck = deckService.createDeck();
+                    deckService.shuffleDeck(deck);
+                    newGame.setDeck(deck);
+
+                    if (!playerNames.isEmpty()) {
+                        newGame.setActivePlayer(playerNames.get(0)); // Set the first player as active
+                    }
+                    playerNames.forEach(player -> {
+                        newGame.getPlayerHands().put(player, new ArrayList<>());
+                        newGame.getPlayerBets().put(player, 100);
+                        newGame.getPlayerHands().get(player).add(deckService.dealCard(deck));
+                        newGame.getPlayerHands().get(player).add(deckService.dealCard(deck));
+                    });
+                    newGame.setPlayerResults(new HashMap<>());
+                    newGame.setDealerHand(new ArrayList<>());
+                    newGame.getDealerHand().add(deckService.dealCard(deck));
+                    return gameRepository.save(newGame);
+                });
     }
+
+
+    public Mono<Boolean> verifyPlayersExist(List<String> playerNames) {
+        return Flux.fromIterable(playerNames)
+                .flatMap(playerRepository::findByName)
+                .collectList()
+                .map(foundPlayers -> foundPlayers.size() == playerNames.size());
+    }
+
 
     @Override
     public void dealCardToPlayer(Game game, String playerName) {

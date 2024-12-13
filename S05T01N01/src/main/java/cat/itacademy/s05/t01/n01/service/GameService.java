@@ -10,6 +10,7 @@ import java.util.List;
 @Service
 public interface GameService {
     Mono<Game> createGame(List<String> playerNames);
+    Mono<Boolean> verifyPlayersExist(List<String> playerNames);
     int calculateHandValue(List<Card> hand);
     void dealCardToPlayer(Game game, String playerName);
     void dealCardToDealer(Game game);

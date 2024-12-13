@@ -34,14 +34,11 @@ public class PlayerController {
     @PutMapping("/{playerName}")
     public Mono<ResponseEntity<Player>> updatePlayerName(
             @PathVariable String playerName,
-            @RequestBody Map<String, String> request
+            @RequestBody String newName
     ) {
-        String newName = request.get("name");
         return playerService.updatePlayerName(playerName, newName)
                 .map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
-
-
-
+    
 }

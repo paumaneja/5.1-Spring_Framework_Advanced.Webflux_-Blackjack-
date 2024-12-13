@@ -21,11 +21,23 @@ public class PlayerServiceImpl implements PlayerService{
 
     @Override
     public Mono<Player> createPlayer(String playerName){
-        Player newPlayer = new Player();
-        newPlayer.setName(playerName);
-        newPlayer.setTotalScore(0);
-        newPlayer.setRanking(0);
-        return playerRepository.save(newPlayer);
+        return verifyPlayerExists(playerName)
+                .flatMap(playerExists -> {
+                    if (playerExists) {
+                        return Mono.error(new IllegalArgumentException("Player already exists in the database."));
+                    }
+                    Player newPlayer = new Player();
+                    newPlayer.setName(playerName);
+                    newPlayer.setTotalScore(0);
+                    newPlayer.setRanking(0);
+                    return playerRepository.save(newPlayer);
+                });
+    }
+
+    public Mono<Boolean> verifyPlayerExists(String playerName) {
+        return playerRepository.findByName(playerName)
+                .map(player -> true)
+                .switchIfEmpty(Mono.just(false));
     }
 
     @Override
