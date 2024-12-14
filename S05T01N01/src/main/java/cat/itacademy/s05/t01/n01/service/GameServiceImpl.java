@@ -1,11 +1,11 @@
 package cat.itacademy.s05.t01.n01.service;
 
+import cat.itacademy.s05.t01.n01.dto.PlayGameRequest;
 import cat.itacademy.s05.t01.n01.enums.GameStatus;
 import cat.itacademy.s05.t01.n01.enums.Rank;
 import cat.itacademy.s05.t01.n01.model.Card;
 import cat.itacademy.s05.t01.n01.model.Deck;
 import cat.itacademy.s05.t01.n01.model.Game;
-import cat.itacademy.s05.t01.n01.model.Player;
 import cat.itacademy.s05.t01.n01.repository.GameRepository;
 import cat.itacademy.s05.t01.n01.repository.PlayerRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,6 @@ import reactor.core.publisher.Mono;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -42,7 +41,7 @@ public class GameServiceImpl implements GameService{
                     newGame.setDeck(deck);
 
                     if (!playerNames.isEmpty()) {
-                        newGame.setActivePlayer(playerNames.get(0)); // Set the first player as active
+                        newGame.setActivePlayer(playerNames.get(0));
                     }
                     playerNames.forEach(player -> {
                         newGame.getPlayerHands().put(player, new ArrayList<>());
@@ -104,18 +103,18 @@ public class GameServiceImpl implements GameService{
     }
 
     @Override
-    public Mono<Game> playMove(String gameId, String playerName, String move, int bet) {
+    public Mono<Game> playMove(String gameId, PlayGameRequest playGameRequest) {
         return getGame(gameId)
                 .flatMap(game -> {
-                    if (!playerName.equals(game.getActivePlayer())) {
-                        return Mono.error(new IllegalArgumentException("It's not " + playerName + "'s turn."));
+                    if (!playGameRequest.getPlayerName().equals(game.getActivePlayer())) {
+                        return Mono.error(new IllegalArgumentException("It's not " + playGameRequest.getPlayerName() + "'s turn."));
                     }
 
-                    switch (move.toUpperCase()) {
+                    switch (playGameRequest.getMove().toUpperCase()) {
                         case "HIT":
-                            dealCardToPlayer(game, playerName);
-                            if (calculateHandValue(game.getPlayerHands().get(playerName)) > 21) {
-                                game.getPlayerResults().put(playerName, "BUST");
+                            dealCardToPlayer(game, playGameRequest.getPlayerName());
+                            if (calculateHandValue(game.getPlayerHands().get(playGameRequest.getPlayerName())) > 21) {
+                                game.getPlayerResults().put(playGameRequest.getPlayerName(), "BUST");
                                 progressTurn(game);
                             }
                             break;
@@ -125,10 +124,9 @@ public class GameServiceImpl implements GameService{
                             break;
 
                         default:
-                            return Mono.error(new IllegalArgumentException("Invalid move: " + move));
+                            return Mono.error(new IllegalArgumentException("Invalid move: " + playGameRequest.getMove()));
                     }
 
-                    // Check if all players have finished and start dealer's turn
                     if (game.getActivePlayer() == null) {
                         dealerTurn(game);
                         completeGame(game);
@@ -140,24 +138,21 @@ public class GameServiceImpl implements GameService{
 
 
 
-    private void progressTurn(Game game) {
-        // Ensure playerHands has a valid order of players
+    public void progressTurn(Game game) {
+
         List<String> players = new ArrayList<>(game.getPlayerHands().keySet());
         String currentPlayer = game.getActivePlayer();
 
-        // Validate that the active player exists
         if (currentPlayer == null || !players.contains(currentPlayer)) {
             throw new IllegalStateException("Active player is invalid or missing.");
         }
 
-        // Find the current player's index
         int currentIndex = players.indexOf(currentPlayer);
 
-        // Transition to the next player, or to dealer if no players remain
         if (currentIndex < players.size() - 1) {
-            game.setActivePlayer(players.get(currentIndex + 1)); // Move to the next player
+            game.setActivePlayer(players.get(currentIndex + 1));
         } else {
-            game.setActivePlayer(null); // No more players, dealer's turn
+            game.setActivePlayer(null);
         }
     }
 

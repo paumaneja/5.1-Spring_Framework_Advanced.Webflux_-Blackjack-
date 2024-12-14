@@ -1,5 +1,7 @@
 package cat.itacademy.s05.t01.n01.controller;
 
+import cat.itacademy.s05.t01.n01.exception.BadRequestException;
+import cat.itacademy.s05.t01.n01.exception.ResourceNotFoundException;
 import cat.itacademy.s05.t01.n01.model.Player;
 import cat.itacademy.s05.t01.n01.service.PlayerService;
 import lombok.RequiredArgsConstructor;
@@ -20,8 +22,11 @@ public class PlayerController {
 
     @PostMapping("/new")
     public Mono<ResponseEntity<Player>> createPlayer(@RequestBody String playerName){
+        if (playerName == null || playerName.isBlank()) {
+            throw new BadRequestException("Player name cannot be null or empty.");
+        }
         return playerService.createPlayer(playerName)
-                .map(savedPlayer -> ResponseEntity.status(HttpStatus.CREATED).body(savedPlayer));
+                .map(player -> ResponseEntity.status(HttpStatus.CREATED).body(player));
     }
 
     @GetMapping("/ranking")
@@ -36,9 +41,12 @@ public class PlayerController {
             @PathVariable String playerName,
             @RequestBody String newName
     ) {
+        if (playerName == null || playerName.isBlank() || newName == null || newName.isBlank()) {
+            throw new BadRequestException("Player ID and new name cannot be null or empty.");
+        }
         return playerService.updatePlayerName(playerName, newName)
                 .map(ResponseEntity::ok)
-                .defaultIfEmpty(ResponseEntity.notFound().build());
+                .switchIfEmpty(Mono.error(new ResourceNotFoundException("Player not found for name: " + playerName)));
     }
     
 }
