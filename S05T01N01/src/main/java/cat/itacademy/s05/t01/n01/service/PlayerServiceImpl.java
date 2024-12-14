@@ -10,6 +10,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 @RequiredArgsConstructor
@@ -45,11 +46,11 @@ public class PlayerServiceImpl implements PlayerService{
         return playerRepository.findAll()
                 .collectList()
                 .map(players -> {
-                    List<Player> sortedPlayers = players.stream()
+                    AtomicInteger rankCounter = new AtomicInteger(1);
+                    return players.stream()
                             .sorted(Comparator.comparingInt(Player::getTotalScore).reversed())
-                            .peek(player -> player.setRanking(players.indexOf(player) + 1))
+                            .peek(player -> player.setRanking(rankCounter.getAndIncrement()))
                             .toList();
-                    return sortedPlayers;
                 })
                 .flatMap(this::saveAllPlayers);
     }
@@ -63,7 +64,7 @@ public class PlayerServiceImpl implements PlayerService{
 
     @Override
     public Mono<Void> updatePlayerScore(String playerName, int score) {
-        return playerRepository.findByName(playerName) // Find by name instead of ID
+        return playerRepository.findByName(playerName)
                 .flatMap(player -> {
                     player.setTotalScore(player.getTotalScore() + score);
                     return playerRepository.save(player);

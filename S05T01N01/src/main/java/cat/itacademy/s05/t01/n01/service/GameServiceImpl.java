@@ -106,6 +106,7 @@ public class GameServiceImpl implements GameService{
     public Mono<Game> playMove(String gameId, PlayGameRequest playGameRequest) {
         return getGame(gameId)
                 .flatMap(game -> {
+                    game.getPlayerBets().put(playGameRequest.getPlayerName(), playGameRequest.getBet());
                     if (!playGameRequest.getPlayerName().equals(game.getActivePlayer())) {
                         return Mono.error(new IllegalArgumentException("It's not " + playGameRequest.getPlayerName() + "'s turn."));
                     }
@@ -191,16 +192,20 @@ public class GameServiceImpl implements GameService{
 
     @Override
     public void processBets(Game game) {
-        game.getPlayerResults().forEach((playerName, result) -> {
-            int bet = game.getPlayerBets().getOrDefault(playerName, 0);
-            if ("WIN".equals(result)) {
-                playerService.updatePlayerScore(playerName, bet * 2).subscribe();
-            } else if ("TIE".equals(result)) {
-                playerService.updatePlayerScore(playerName, bet).subscribe();
-            } else {
-                System.out.println(playerName + " loses the bet of " + bet + ".");
-            }
-        });
+        Flux.fromIterable(game.getPlayerResults().entrySet())
+                .flatMap(entry -> {
+                    String playerName = entry.getKey();
+                    String result = entry.getValue();
+                    int bet = game.getPlayerBets().getOrDefault(playerName, 0);
+                    if ("WIN".equals(result)) {
+                        return playerService.updatePlayerScore(playerName, bet * 2);
+                    } else if ("TIE".equals(result)) {
+                        return playerService.updatePlayerScore(playerName, bet);
+                    }
+                    return Mono.empty();
+                })
+                .then(playerService.updateRanking())
+                .subscribe();
     }
 
 
