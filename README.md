@@ -18,25 +18,24 @@ Tech Stack
 - Documentation: JavaDoc
 
 Getting Started
-  Prerequisites
+  - Prerequisites
     Ensure you have the following installed:
     - Java Development Kit (JDK) (version 17 or higher)
     - Maven
 
-  Setup Instructions
+  - Setup Instructions
     Clone the repository:
     - git clone https://github.com/yourusername/blackjack-game.git
     - cd blackjack-game
 
-  Build the project:
+  - Build the project:
     - mvn clean install
 
-  Run the application:
+  - Run the application:
     - mvn exec:java -Dexec.mainClass="com.example.blackjack.Main"
 
-  Run the tests:
+  - Run the tests:
     - mvn test
-
 
 Project Structure
   src/main/java: Contains the main application code.
