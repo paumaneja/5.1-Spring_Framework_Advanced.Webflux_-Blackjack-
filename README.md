@@ -38,9 +38,9 @@ Getting Started
     - mvn test
 
 Project Structure
-  src/main/java: Contains the main application code.
-  src/main/resources: Configuration files and assets.
-  src/test/java: Unit and integration tests.
+  - src/main/java: Contains the main application code.
+  - src/main/resources: Configuration files and assets.
+  - src/test/java: Unit and integration tests.
 
 Future Enhancements
   - Implement advanced Blackjack rules (e.g., splitting, doubling down).
