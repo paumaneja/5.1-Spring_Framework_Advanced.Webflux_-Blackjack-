@@ -1,6 +1,7 @@
-package cat.itacademy.s05.t01.n01.service;
+package cat.itacademy.s05.t01.n01.service.Impl;
 
 import cat.itacademy.s05.t01.n01.model.Card;
+import cat.itacademy.s05.t01.n01.service.CardService;
 import org.springframework.stereotype.Service;
 
 @Service

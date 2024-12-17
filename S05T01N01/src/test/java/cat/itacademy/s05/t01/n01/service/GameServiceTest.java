@@ -6,6 +6,7 @@ import cat.itacademy.s05.t01.n01.model.Card;
 import cat.itacademy.s05.t01.n01.model.Game;
 import cat.itacademy.s05.t01.n01.repository.GameRepository;
 import cat.itacademy.s05.t01.n01.repository.PlayerRepository;
+import cat.itacademy.s05.t01.n01.service.Impl.GameServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

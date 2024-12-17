@@ -1,7 +1,8 @@
-package cat.itacademy.s05.t01.n01.service;
+package cat.itacademy.s05.t01.n01.service.Impl;
 
 import cat.itacademy.s05.t01.n01.model.Player;
 import cat.itacademy.s05.t01.n01.repository.PlayerRepository;
+import cat.itacademy.s05.t01.n01.service.PlayerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,7 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 @RequiredArgsConstructor
-public class PlayerServiceImpl implements PlayerService{
+public class PlayerServiceImpl implements PlayerService {
 
     @Autowired
     private final PlayerRepository playerRepository;

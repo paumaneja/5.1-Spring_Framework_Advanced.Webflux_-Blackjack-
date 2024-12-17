@@ -1,4 +1,4 @@
-package cat.itacademy.s05.t01.n01.service;
+package cat.itacademy.s05.t01.n01.service.Impl;
 
 import cat.itacademy.s05.t01.n01.dto.PlayGameRequest;
 import cat.itacademy.s05.t01.n01.enums.GameStatus;
@@ -8,6 +8,10 @@ import cat.itacademy.s05.t01.n01.model.Deck;
 import cat.itacademy.s05.t01.n01.model.Game;
 import cat.itacademy.s05.t01.n01.repository.GameRepository;
 import cat.itacademy.s05.t01.n01.repository.PlayerRepository;
+import cat.itacademy.s05.t01.n01.service.CardService;
+import cat.itacademy.s05.t01.n01.service.DeckService;
+import cat.itacademy.s05.t01.n01.service.GameService;
+import cat.itacademy.s05.t01.n01.service.PlayerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,7 +24,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class GameServiceImpl implements GameService{
+public class GameServiceImpl implements GameService {
     @Autowired
     private final GameRepository gameRepository;
     private final DeckService deckService;
@@ -85,7 +89,7 @@ public class GameServiceImpl implements GameService{
     }
 
 
-    private int calculateHandValue(List<Card> hand) {
+    public int calculateHandValue(List<Card> hand) {
         int totalValue = hand.stream()
                 .mapToInt(cardService::calculateValue)
                 .sum();
@@ -133,13 +137,13 @@ public class GameServiceImpl implements GameService{
                         completeGame(game);
                     }
 
-                    return updateGame(gameId, game);
+                    return updateGame(game);
                 });
     }
 
 
 
-    private void progressTurn(Game game) {
+    public void progressTurn(Game game) {
 
         List<String> players = new ArrayList<>(game.getPlayerHands().keySet());
         String currentPlayer = game.getActivePlayer();
@@ -224,7 +228,7 @@ public class GameServiceImpl implements GameService{
     }
 
 
-    private Mono<Game> updateGame(String id, Game game) {
+    private Mono<Game> updateGame(Game game) {
         return gameRepository.save(game);
     }
 

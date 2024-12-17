@@ -1,9 +1,12 @@
-package cat.itacademy.s05.t01.n01.service;
+package cat.itacademy.s05.t01.n01.service.Impl;
 
 import cat.itacademy.s05.t01.n01.enums.Rank;
 import cat.itacademy.s05.t01.n01.enums.Suit;
+import cat.itacademy.s05.t01.n01.exception.DeckEmptyException;
 import cat.itacademy.s05.t01.n01.model.Card;
 import cat.itacademy.s05.t01.n01.model.Deck;
+import cat.itacademy.s05.t01.n01.service.CardService;
+import cat.itacademy.s05.t01.n01.service.DeckService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,7 +15,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Service
-public class DeckServiceImpl implements DeckService{
+public class DeckServiceImpl implements DeckService {
 
     private final CardService cardService;
 
@@ -42,7 +45,7 @@ public class DeckServiceImpl implements DeckService{
     @Override
     public Card dealCard(Deck deck) {
         if (deck.getCards().isEmpty()) {
-            //throw new DeckEmptyException("The deck is empty.");
+            throw new DeckEmptyException("The deck is empty.");
         }
         Card card = deck.getCards().remove(0);
         cardService.flipCard(card);
