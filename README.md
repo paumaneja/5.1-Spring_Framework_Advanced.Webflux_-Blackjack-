@@ -15,7 +15,9 @@ Tech Stack
 - Language: Java (version 17 or higher)
 - Build Tool: Maven
 - Testing: JUnit for unit and integration tests
-- Documentation: JavaDoc
+- Documentation: Swagger (OpenAPI)
+    - http://localhost:8080/swagger-ui.html
+
 
 Getting Started
   - Prerequisites
@@ -25,14 +27,14 @@ Getting Started
 
   - Setup Instructions
     Clone the repository:
-    - git clone https://github.com/yourusername/blackjack-game.git
-    - cd blackjack-game
+    - git clone https://github.com/paumaneja/5.1-Spring_Framework_Advanced.Webflux_-Blackjack-.git
+    - cd 5.1-Spring_Framework_Advanced.Webflux_-Blackjack-
 
   - Build the project:
     - mvn clean install
 
   - Run the application:
-    - mvn exec:java -Dexec.mainClass="com.example.blackjack.Main"
+    - mvn exec:java -Dexec.mainClass="cat.itacademy.s05.t01.n01.S05T01N01Application"
 
   - Run the tests:
     - mvn test
