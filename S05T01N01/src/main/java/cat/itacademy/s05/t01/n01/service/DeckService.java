@@ -9,5 +9,4 @@ public interface DeckService {
     Deck createDeck();
     void shuffleDeck(Deck deck);
     Card dealCard(Deck deck);
-    void resetDeck(Deck deck);
 }

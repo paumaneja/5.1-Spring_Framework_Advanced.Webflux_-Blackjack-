@@ -57,7 +57,7 @@ public class GameServiceImpl implements GameService{
     }
 
 
-    public Mono<Boolean> verifyPlayersExist(List<String> playerNames) {
+    private Mono<Boolean> verifyPlayersExist(List<String> playerNames) {
         return Flux.fromIterable(playerNames)
                 .flatMap(playerRepository::findByName)
                 .collectList()
@@ -65,27 +65,27 @@ public class GameServiceImpl implements GameService{
     }
 
 
-    @Override
-    public void dealCardToPlayer(Game game, String playerName) {
+
+    private void dealCardToPlayer(Game game, String playerName) {
         Card card = deckService.dealCard(game.getDeck());
         game.getPlayerHands().get(playerName).add(card);
     }
 
-    @Override
-    public void dealCardToDealer(Game game) {
+
+    private void dealCardToDealer(Game game) {
         Card card = deckService.dealCard(game.getDeck());
         game.getDealerHand().add(card);
     }
 
-    @Override
-    public void dealerTurn(Game game) {
+
+    private void dealerTurn(Game game) {
         while (calculateHandValue(game.getDealerHand()) < 17) {
             dealCardToDealer(game);
         }
     }
 
-    @Override
-    public int calculateHandValue(List<Card> hand) {
+
+    private int calculateHandValue(List<Card> hand) {
         int totalValue = hand.stream()
                 .mapToInt(cardService::calculateValue)
                 .sum();
@@ -139,7 +139,7 @@ public class GameServiceImpl implements GameService{
 
 
 
-    public void progressTurn(Game game) {
+    private void progressTurn(Game game) {
 
         List<String> players = new ArrayList<>(game.getPlayerHands().keySet());
         String currentPlayer = game.getActivePlayer();
@@ -161,8 +161,8 @@ public class GameServiceImpl implements GameService{
 
 
 
-    @Override
-    public void determineWinner(Game game) {
+
+    private void determineWinner(Game game) {
         int dealerValue = calculateHandValue(game.getDealerHand());
         boolean dealerHasBlackJack = dealerValue == 21 && game.getDealerHand().size() == 2;
 
@@ -190,8 +190,8 @@ public class GameServiceImpl implements GameService{
         });
     }
 
-    @Override
-    public void processBets(Game game) {
+
+    private void processBets(Game game) {
         Flux.fromIterable(game.getPlayerResults().entrySet())
                 .flatMap(entry -> {
                     String playerName = entry.getKey();
@@ -210,8 +210,8 @@ public class GameServiceImpl implements GameService{
 
 
 
-    @Override
-    public void completeGame(Game game) {
+
+    private void completeGame(Game game) {
         determineWinner(game);
         processBets(game);
         playerService.updateRanking().subscribe();
@@ -223,8 +223,8 @@ public class GameServiceImpl implements GameService{
         return gameRepository.findById(id);
     }
 
-    @Override
-    public Mono<Game> updateGame(String id, Game game) {
+
+    private Mono<Game> updateGame(String id, Game game) {
         return gameRepository.save(game);
     }
 

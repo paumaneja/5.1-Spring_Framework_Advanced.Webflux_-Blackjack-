@@ -49,10 +49,4 @@ public class DeckServiceImpl implements DeckService{
         return card;
     }
 
-    @Override
-    public void resetDeck(Deck deck) {
-        Deck newDeck = createDeck();
-        deck.setCards(newDeck.getCards());
-        shuffleDeck(deck);
-    }
 }

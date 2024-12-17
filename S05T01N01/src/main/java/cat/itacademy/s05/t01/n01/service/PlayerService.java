@@ -9,9 +9,8 @@ import java.util.List;
 @Service
 public interface PlayerService {
     Mono<Player> createPlayer(String playerName);
+    Mono<Void> updatePlayerScore(String playerName, int score);
     Mono<List<Player>> updateRanking();
-    Mono<List<Player>> saveAllPlayers(List<Player> players);
-    Mono<Void> updatePlayerScore(String playerId, int additionalScore);
     Mono<Player> updatePlayerName(String playerId, String newName);
 
 }

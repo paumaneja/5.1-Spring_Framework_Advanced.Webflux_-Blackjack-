@@ -55,8 +55,8 @@ public class PlayerServiceImpl implements PlayerService{
                 .flatMap(this::saveAllPlayers);
     }
 
-    @Override
-    public Mono<List<Player>> saveAllPlayers(List<Player> players) {
+
+    private Mono<List<Player>> saveAllPlayers(List<Player> players) {
         return Flux.fromIterable(players)
                 .flatMap(playerRepository::save)
                 .collectList();
