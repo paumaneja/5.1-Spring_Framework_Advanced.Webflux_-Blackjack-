@@ -13,7 +13,6 @@ import cat.itacademy.s05.t01.n01.service.DeckService;
 import cat.itacademy.s05.t01.n01.service.GameService;
 import cat.itacademy.s05.t01.n01.service.PlayerService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -25,7 +24,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class GameServiceImpl implements GameService {
-    @Autowired
+
     private final GameRepository gameRepository;
     private final DeckService deckService;
     private final CardService cardService;

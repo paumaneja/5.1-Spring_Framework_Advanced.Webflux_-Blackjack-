@@ -7,6 +7,7 @@ import cat.itacademy.s05.t01.n01.model.Card;
 import cat.itacademy.s05.t01.n01.model.Deck;
 import cat.itacademy.s05.t01.n01.service.CardService;
 import cat.itacademy.s05.t01.n01.service.DeckService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,14 +16,10 @@ import java.util.Collections;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class DeckServiceImpl implements DeckService {
 
     private final CardService cardService;
-
-    @Autowired
-    public DeckServiceImpl(CardService cardService) {
-        this.cardService = cardService;
-    }
 
     @Override
     public Deck createDeck() {

@@ -4,7 +4,6 @@ import cat.itacademy.s05.t01.n01.model.Player;
 import cat.itacademy.s05.t01.n01.repository.PlayerRepository;
 import cat.itacademy.s05.t01.n01.service.PlayerService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -17,9 +16,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @RequiredArgsConstructor
 public class PlayerServiceImpl implements PlayerService {
 
-    @Autowired
     private final PlayerRepository playerRepository;
-
 
     @Override
     public Mono<Player> createPlayer(String playerName){

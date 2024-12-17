@@ -8,26 +8,21 @@ import cat.itacademy.s05.t01.n01.model.Game;
 import cat.itacademy.s05.t01.n01.service.GameService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/game")
 @Tag(name = "Games", description = "Endpoints for managing games")
+@RequiredArgsConstructor
 public class GameController {
 
-    @Autowired
     private final GameService gameService;
-
-    public GameController(GameService gameService){
-        this.gameService = gameService;
-    }
 
     @PostMapping("/new")
     @Operation(
