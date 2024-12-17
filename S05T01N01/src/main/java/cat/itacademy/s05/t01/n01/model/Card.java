@@ -4,7 +4,6 @@ import cat.itacademy.s05.t01.n01.enums.Rank;
 import cat.itacademy.s05.t01.n01.enums.Suit;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
 @Schema(description = "Represents a playing card with a suit and rank.")
